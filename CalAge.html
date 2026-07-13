@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The CalAge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #12142a;
+    --ink-deep: #0c0e1e;
+    --panel: #1c2047;
+    --panel-2: #262b57;
+    --line: rgba(201,162,75,0.28);
+    --brass: #c9a24b;
+    --brass-light: #e7c878;
+    --verdigris: #4fa398;
+    --ivory: #f8f4e8;
+    --muted: #9aa0c8;
+    --danger-glow: rgba(201,162,75,0.15);
+    --radius: 14px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background: var(--ink);
+    color: var(--ivory);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+  }
+
+  body{
+    background:
+      radial-gradient(circle at 15% 10%, rgba(79,163,152,0.10), transparent 45%),
+      radial-gradient(circle at 85% 0%, rgba(201,162,75,0.10), transparent 40%),
+      var(--ink);
+    display:flex;
+    justify-content:center;
+    padding: 56px 20px 80px;
+  }
+
+  .page{
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .intro{
+    text-align:center;
+    margin-bottom: 40px;
+  }
+
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 11px;
+    color: var(--brass-light);
+    margin: 0 0 14px;
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2.2rem, 6vw, 3.1rem);
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .lede{
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  /* Tabs */
+  .tabs{
+    display:flex;
+    gap: 6px;
+    background: var(--ink-deep);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px;
+    margin: 34px auto 24px;
+    max-width: 420px;
+  }
+
+  .tab{
+    flex:1;
+    border:none;
+    background: transparent;
+    color: var(--muted);
+    font-family:'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 11px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color .2s ease, background .2s ease;
+  }
+
+  .tab.active{
+    background: linear-gradient(180deg, var(--brass-light), var(--brass));
+    color: #241c04;
+  }
+
+  .tab:not(.active):hover{
+    color: var(--ivory);
+  }
+
+  .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{
+    outline: 2px solid var(--verdigris);
+    outline-offset: 2px;
+  }
+
+  /* Panel */
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+
+  form{
+    display:flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .field-row{
+    display:flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .field-row .field{ flex:1; min-width: 140px; }
+
+  label{
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  input, select{
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    color: var(--ivory);
+    padding: 12px 13px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+  }
+
+  input::-webkit-calendar-picker-indicator{
+    filter: invert(85%) sepia(20%) saturate(400%) hue-rotate(345deg);
+    cursor: pointer;
+  }
+
+  .submit-btn{
+    margin-top: 4px;
+    border: none;
+    border-radius: 9px;
+    padding: 13px 18px;
+    background: linear-gradient(180deg, var(--brass-light), var(--brass));
+    color: #241c04;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+
+  .submit-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -8px rgba(201,162,75,0.6);
+  }
+
+  .submit-btn:active{ transform: translateY(0); }
+
+  .hint{
+    font-size: 12px;
+    color: var(--muted);
+    margin: -8px 0 0;
+  }
+
+  /* Results: Age */
+  .results{
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .ymd-row{
+    display:flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+
+  .ymd-block{
+    flex:1;
+    text-align:center;
+    background: var(--ink-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 6px 12px;
+  }
+
+  .ymd-value{
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+    font-weight: 700;
+    color: var(--brass-light);
+    line-height: 1;
+  }
+
+  .ymd-label{
+    display:block;
+    margin-top: 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .ticker-wrap{
+    text-align:center;
+    margin-bottom: 26px;
+  }
+
+  .ticker-label{
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+
+  .ticker{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .digit-cell{
+    width: 34px;
+    height: 46px;
+    background: var(--ink-deep);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--verdigris);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .digit-cell span{
+    display:inline-block;
+    transition: transform .35s cubic-bezier(.3,1,.4,1), opacity .35s ease;
+  }
+
+  .digit-cell.rolling span{
+    animation: roll .35s cubic-bezier(.3,1,.4,1);
+  }
+
+  @keyframes roll{
+    0%{ transform: translateY(-60%); opacity: 0; }
+    100%{ transform: translateY(0); opacity: 1; }
+  }
+
+  .ticker-colon{
+    color: var(--brass);
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .stat-row{
+    display:flex;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+
+  .stat-row > div{
+    flex:1;
+    min-width: 160px;
+    background: var(--ink-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .stat-row dt{
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+
+  .stat-row dd{
+    margin:0;
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    color: var(--ivory);
+  }
+
+  /* Birth year results */
+  .by-results{
+    margin-top: 30px;
+    padding-top: 26px;
+    border-top: 1px dashed var(--line);
+    display:flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .year-card{
+    flex:1;
+    min-width: 220px;
+    background: var(--ink-deep);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .year-card.likely{
+    border-color: var(--brass);
+    box-shadow: 0 0 0 1px var(--brass) inset;
+  }
+
+  .year-badge{
+    position:absolute;
+    top: -11px;
+    left: 16px;
+    background: var(--brass);
+    color: #241c04;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 999px;
+  }
+
+  .year-num{
+    font-family:'Fraunces', serif;
+    font-weight: 700;
+    font-size: 2.4rem;
+    color: var(--brass-light);
+    display:block;
+    line-height:1;
+    margin-bottom: 10px;
+  }
+
+  .year-card:not(.likely) .year-num{
+    color: var(--ivory);
+  }
+
+  .year-note{
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .panel-hidden{ display:none; }
+
+  footer{
+    text-align:center;
+    margin-top: 30px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 480px){
+    .panel{ padding: 24px 18px; }
+    .digit-cell{ width: 28px; height: 40px; font-size: 1.2rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .digit-cell.rolling span{ animation: none; }
+    .submit-btn{ transition: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="intro">
+      <p class="eyebrow">A perpetual calendar</p>
+      <h1>The CalAge</h1>
+      <p class="lede">Enter a date of birth to see a life measured down to the second — or work backwards from an age to find the year it began.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="tab-age" role="tab" aria-selected="true">Calculate age</button>
+      <button class="tab" id="tab-birthyear" role="tab" aria-selected="false">Find birth year</button>
+    </div>
+
+    <!-- AGE CALCULATOR PANEL -->
+    <section class="panel" id="panel-age">
+      <form id="age-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="dob">Date of birth
+              <input type="date" id="dob" required>
+            </label>
+          </div>
+          <div class="field">
+            <label for="tob">Time of birth (optional)
+              <input type="time" id="tob" step="1">
+            </label>
+          </div>
+        </div>
+        <p class="hint">Leave the time blank to start the count from midnight.</p>
+        <button type="submit" class="submit-btn">Calculate age</button>
+      </form>
+
+      <div class="results" id="age-results" hidden>
+        <div class="ymd-row">
+          <div class="ymd-block">
+            <span class="ymd-value" id="val-years">0</span>
+            <span class="ymd-label">Years</span>
+          </div>
+          <div class="ymd-block">
+            <span class="ymd-value" id="val-months">0</span>
+            <span class="ymd-label">Months</span>
+          </div>
+          <div class="ymd-block">
+            <span class="ymd-value" id="val-days">0</span>
+            <span class="ymd-label">Days</span>
+          </div>
+        </div>
+
+        <div class="ticker-wrap">
+          <p class="ticker-label">Ticking since birth</p>
+          <div class="ticker" id="ticker"><!-- digit cells injected by JS --></div>
+        </div>
+
+        <dl class="stat-row">
+          <div>
+            <dt>Total days lived</dt>
+            <dd id="stat-total-days">—</dd>
+          </div>
+          <div>
+            <dt>Next birthday</dt>
+            <dd id="stat-next-bday">—</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- BIRTH YEAR FINDER PANEL -->
+    <section class="panel panel-hidden" id="panel-birthyear">
+      <form id="by-form">
+        <div class="field">
+          <label for="by-age">Current age (in years)
+            <input type="number" id="by-age" min="0" max="130" required>
+          </label>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="by-day">Birth day
+              <input type="number" id="by-day" min="1" max="31" required>
+            </label>
+          </div>
+          <div class="field">
+            <label for="by-month">Birth month
+              <select id="by-month">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <p class="hint">We compare the birth day and month to today's date, so the closest match is marked "most likely."</p>
+        <button type="submit" class="submit-btn">Find birth year</button>
+      </form>
+
+      <div class="by-results" id="by-results" hidden>
+        <div class="year-card likely" id="card-likely">
+          <span class="year-badge">Most likely</span>
+          <span class="year-num" id="year-likely">—</span>
+          <p class="year-note" id="note-likely"></p>
+        </div>
+        <div class="year-card" id="card-other">
+          <span class="year-num" id="year-other">—</span>
+          <p class="year-note" id="note-other"></p>
+        </div>
+      </div>
+    </section>
+
+    <footer>Every calculation runs locally in your browser. Nothing is stored or sent anywhere.</footer>
+  </div>
+
+<script>
+  // ---------- Tab switching ----------
+  const tabAge = document.getElementById('tab-age');
+  const tabBy = document.getElementById('tab-birthyear');
+  const panelAge = document.getElementById('panel-age');
+  const panelBy = document.getElementById('panel-birthyear');
+
+  function showAgeTab(){
+    tabAge.classList.add('active'); tabAge.setAttribute('aria-selected','true');
+    tabBy.classList.remove('active'); tabBy.setAttribute('aria-selected','false');
+    panelAge.classList.remove('panel-hidden');
+    panelBy.classList.add('panel-hidden');
+  }
+  function showByTab(){
+    tabBy.classList.add('active'); tabBy.setAttribute('aria-selected','true');
+    tabAge.classList.remove('active'); tabAge.setAttribute('aria-selected','false');
+    panelBy.classList.remove('panel-hidden');
+    panelAge.classList.add('panel-hidden');
+  }
+  tabAge.addEventListener('click', showAgeTab);
+  tabBy.addEventListener('click', showByTab);
+
+  // ---------- Ticker (digit cell) setup ----------
+  const ticker = document.getElementById('ticker');
+  // layout: HH : MM : SS  -> 6 digit cells + 2 colons
+  const tickerLayout = ['d','d','c','d','d','c','d','d'];
+  const digitCells = [];
+  tickerLayout.forEach(type => {
+    if(type === 'c'){
+      const colon = document.createElement('span');
+      colon.className = 'ticker-colon';
+      colon.textContent = ':';
+      ticker.appendChild(colon);
+    } else {
+      const cell = document.createElement('div');
+      cell.className = 'digit-cell';
+      const span = document.createElement('span');
+      span.textContent = '0';
+      cell.appendChild(span);
+      ticker.appendChild(cell);
+      digitCells.push(span);
+    }
+  });
+
+  function setTickerValue(h,m,s){
+    const str = [h,m,s].map(n => String(n).padStart(2,'0')).join('');
+    for(let i=0;i<str.length;i++){
+      const span = digitCells[i];
+      if(span.textContent !== str[i]){
+        span.textContent = str[i];
+        const cell = span.parentElement;
+        cell.classList.remove('rolling');
+        void cell.offsetWidth; // reflow to restart animation
+        cell.classList.add('rolling');
+      }
+    }
+  }
+
+  // ---------- Age breakdown math ----------
+  let dobDate = null;
+  let tickInterval = null;
+
+  function getAgeBreakdown(dob, now){
+    let years = now.getFullYear() - dob.getFullYear();
+    let months = now.getMonth() - dob.getMonth();
+    let days = now.getDate() - dob.getDate();
+    let hours = now.getHours() - dob.getHours();
+    let minutes = now.getMinutes() - dob.getMinutes();
+    let seconds = now.getSeconds() - dob.getSeconds();
+
+    if(seconds < 0){ seconds += 60; minutes--; }
+    if(minutes < 0){ minutes += 60; hours--; }
+    if(hours < 0){ hours += 24; days--; }
+    if(days < 0){
+      months--;
+      const daysInPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      days += daysInPrevMonth;
+    }
+    if(months < 0){ months += 12; years--; }
+
+    return { years, months, days, hours, minutes, seconds };
+  }
+
+  function nextBirthdayText(dob, now){
+    const y = now.getFullYear();
+    let next = new Date(y, dob.getMonth(), dob.getDate());
+    const todayOnly = new Date(y, now.getMonth(), now.getDate());
+    if(next < todayOnly){
+      next = new Date(y+1, dob.getMonth(), dob.getDate());
+    }
+    const diffDays = Math.round((next - todayOnly) / 86400000);
+    if(diffDays === 0) return "Today!";
+    return diffDays + (diffDays === 1 ? " day" : " days");
+  }
+
+  function updateAgeDisplay(){
+    const now = new Date();
+    const b = getAgeBreakdown(dobDate, now);
+    document.getElementById('val-years').textContent = b.years;
+    document.getElementById('val-months').textContent = b.months;
+    document.getElementById('val-days').textContent = b.days;
+    setTickerValue(b.hours, b.minutes, b.seconds);
+
+    const totalDays = Math.floor((now - dobDate) / 86400000);
+    document.getElementById('stat-total-days').textContent = totalDays.toLocaleString();
+    document.getElementById('stat-next-bday').textContent = nextBirthdayText(dobDate, now);
+  }
+
+  document.getElementById('age-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const dobVal = document.getElementById('dob').value;
+    if(!dobVal) return;
+    const tobVal = document.getElementById('tob').value;
+
+    const [y, mo, d] = dobVal.split('-').map(Number);
+    let h = 0, mi = 0, se = 0;
+    if(tobVal){
+      const parts = tobVal.split(':').map(Number);
+      h = parts[0] || 0; mi = parts[1] || 0; se = parts[2] || 0;
+    }
+    dobDate = new Date(y, mo-1, d, h, mi, se);
+
+    if(dobDate > new Date()){
+      alert("That date of birth is in the future — please double-check it.");
+      return;
+    }
+
+    document.getElementById('age-results').hidden = false;
+    updateAgeDisplay();
+    if(tickInterval) clearInterval(tickInterval);
+    tickInterval = setInterval(updateAgeDisplay, 1000);
+  });
+
+  // ---------- Birth year finder ----------
+  document.getElementById('by-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const age = parseInt(document.getElementById('by-age').value, 10);
+    const day = parseInt(document.getElementById('by-day').value, 10);
+    const month = parseInt(document.getElementById('by-month').value, 10);
+    if(isNaN(age) || isNaN(day)) return;
+
+    const today = new Date();
+    const y = today.getFullYear();
+
+    // normalize an invalid day/month combo (e.g. Feb 30) by letting Date roll over,
+    // then compare to today at day-resolution
+    const thisYearBday = new Date(y, month-1, day);
+    const todayOnly = new Date(y, today.getMonth(), today.getDate());
+    const alreadyHappened = thisYearBday <= todayOnly;
+
+    const candidateIfPassed = y - age;
+    const candidateIfNotYet = y - age - 1;
+
+    const likely = alreadyHappened ? candidateIfPassed : candidateIfNotYet;
+    const other = alreadyHappened ? candidateIfNotYet : candidateIfPassed;
+
+    document.getElementById('year-likely').textContent = likely;
+    document.getElementById('note-likely').textContent = alreadyHappened
+      ? "Fits if this year's birthday has already passed — which matches today's date."
+      : "Fits if this year's birthday hasn't happened yet — which matches today's date.";
+
+    document.getElementById('year-other').textContent = other;
+    document.getElementById('note-other').textContent = alreadyHappened
+      ? "Only fits if the birthday hadn't happened yet this year — less likely given today's date."
+      : "Only fits if the birthday had already happened this year — less likely given today's date.";
+
+    document.getElementById('by-results').hidden = false;
+  });
+</script>
+</body>
+</html>
